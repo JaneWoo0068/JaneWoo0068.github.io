@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Ubuntu更新国内镜像源（适用Docker）</title>
+    <url>/2023/08/18/Ubuntu%E6%9B%B4%E6%96%B0%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F%E6%BA%90%EF%BC%88%E9%80%82%E7%94%A8docker%EF%BC%89/</url>
+    <content><![CDATA[<h3 id="Ubuntu各版本配置镜像"><a href="#Ubuntu各版本配置镜像" class="headerlink" title="Ubuntu各版本配置镜像"></a>Ubuntu各版本配置镜像</h3><p>如果是第一次进入容器，一定啥也没有吧。默认用户是root跟上你的id。<br>现在要做的，就是先更新一次当前的软件源，使用https转换，以及安装好相关的包（证书），然后再配置国内镜像源。  </p>
+<h4 id="1-用户权限设置（如果不使用Docker，请直接跳到第二步）"><a href="#1-用户权限设置（如果不使用Docker，请直接跳到第二步）" class="headerlink" title="1. 用户权限设置（如果不使用Docker，请直接跳到第二步）"></a>1. 用户权限设置（如果不使用Docker，请直接跳到第二步）</h4><p>由于第一次使用，要先设置好 root 用户的密码。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">passwd root</span><br><span class="line">输入密码（不可见），</span><br><span class="line">再次输入密码，</span><br><span class="line">提示设置密码成功；</span><br></pre></td></tr></table></figure></div>
+
+<p>同时，因为是第一次，先更新一下软件源，等待一分钟左右</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">apt-get update</span><br></pre></td></tr></table></figure></div>
+
+<p>安装 sudo 权限管理工具，为下一步服务</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">apt-get install sudo</span><br></pre></td></tr></table></figure></div>
+
+<p>为了避免一直使用 root 用户身份，造成麻烦，我们要新建一个用户，过程与 root 用户类似</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># add user</span></span><br><span class="line">adduser &lt;你的新用户名，不要加括号&gt;</span><br><span class="line"><span class="comment"># set sudoer</span></span><br><span class="line">usermod -aG sudo &lt;你的新用户名，不要加括号&gt;</span><br></pre></td></tr></table></figure></div>
+
+<p>此时可能需要设置密码，输入密码，FullName下面的东西随便填，直接回车也行<br>有了这个新身份，我们要切换身份  </p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">su &lt;你的新用户名，不要加括号&gt;</span><br><span class="line"><span class="comment"># 同理，你要切换（switch）回 root，就 su root</span></span><br></pre></td></tr></table></figure></div>
+
+<p>切换后，应该和 root 一样是在根目录（root），我们切换到家目录<br><em><strong>家目录一般用~符号表示，完整目录是</strong></em> <code>/home/&lt;你的用户名&gt;</code>   </p>
+<h4 id="2-安装https转换源链接"><a href="#2-安装https转换源链接" class="headerlink" title="2. 安装https转换源链接"></a>2. 安装https转换源链接</h4><div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 https 相关的包（需要 sudo ）</span></span><br><span class="line">sudo apt install apt-transport-https</span><br><span class="line">sudo apt install ca-certificates</span><br><span class="line"><span class="comment"># 再次更新</span></span><br><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></div>
+
+<p><em><strong>使用 HTTPS 可以有效避免国内运营商的缓存劫持。</strong></em></p>
+<h3 id="此时，前期准备工作就完成了。如果要直接更新国内镜像源，就看这里。"><a href="#此时，前期准备工作就完成了。如果要直接更新国内镜像源，就看这里。" class="headerlink" title="此时，前期准备工作就完成了。如果要直接更新国内镜像源，就看这里。"></a>此时，前期准备工作就完成了。如果要直接更新国内镜像源，就看这里。</h3><p>这里使用中科大镜像源作为例子。<br><a class="link"   href="http://mirrors.ustc.edu.cn/help/ubuntu.html" >USTC镜像帮助 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 使用如下命令就能更换USTC镜像源，省去手动更改文件的操作</span><br><span class="line">sudo sed -i &#x27;s/archive.ubuntu.com/mirrors.ustc.edu.cn/g&#x27; /etc/apt/sources.list</span><br></pre></td></tr></table></figure></div>
+
+<p>为了方便理解，这里也给出手动更改的目录<br>首先安装编辑器 neovim </p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt install neovim</span><br></pre></td></tr></table></figure></div>
+
+<p>然后修改 <code>/etc/apt/sources.list</code> 文件（需要 sudo ）</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">sudo nvim /etc/apt/sources.list</span><br></pre></td></tr></table></figure></div>
+
+<p>以下是参考配置内容：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码仓库，如有需要可自行取消注释</span><br><span class="line">deb https://mirrors.ustc.edu.cn/ubuntu/ focal main restricted universe multiverse</span><br><span class="line"># deb-src https://mirrors.ustc.edu.cn/ubuntu/ focal main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb https://mirrors.ustc.edu.cn/ubuntu/ focal-security main restricted universe multiverse</span><br><span class="line"># deb-src https://mirrors.ustc.edu.cn/ubuntu/ focal-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb https://mirrors.ustc.edu.cn/ubuntu/ focal-updates main restricted universe multiverse</span><br><span class="line"># deb-src https://mirrors.ustc.edu.cn/ubuntu/ focal-updates main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb https://mirrors.ustc.edu.cn/ubuntu/ focal-backports main restricted universe multiverse</span><br><span class="line"># deb-src https://mirrors.ustc.edu.cn/ubuntu/ focal-backports main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https://mirrors.ustc.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https://mirrors.ustc.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></div>
+
+<p>终端里按 CTRL + SHIFT  v 粘贴<br>然后输入 <code>:wq</code> 进行保存并退出（save and quit） </p>
+<p><mark>提示：如要用于其他版本，把 focal 换成其他版本代号即可</mark><br>      22.04：jammy<br>      20.04：focal<br>      18.04：bionic<br>      16.04：xenial<br>      14.04：trusty  </p>
+]]></content>
+      <tags>
+        <tag>Linux</tag>
+        <tag>WSL</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2023/08/16/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a class="link"   href="https://hexo.io/" >Hexo <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>! This is your very first post. Check <a class="link"   href="https://hexo.io/docs/" >documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> for more info. If you get any problems when using Hexo, you can find the answer in <a class="link"   href="https://hexo.io/docs/troubleshooting.html" >troubleshooting <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> or you can ask me on <a class="link"   href="https://github.com/hexojs/hexo/issues" >GitHub <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure></div>
+
+<p>More info: <a class="link"   href="https://hexo.io/docs/writing.html" >Writing <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure></div>
+
+<p>More info: <a class="link"   href="https://hexo.io/docs/server.html" >Server <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure></div>
+
+<p>More info: <a class="link"   href="https://hexo.io/docs/generating.html" >Generating <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure></div>
+
+<p>More info: <a class="link"   href="https://hexo.io/docs/one-command-deployment.html" >Deployment <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+]]></content>
+  </entry>
+</search>
